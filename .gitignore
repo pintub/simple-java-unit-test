@@ -1,0 +1,4 @@
+#Maven Target
+.idea/
+target/
+SimpleTest.iml
