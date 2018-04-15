@@ -19,16 +19,17 @@ public class SimpleTestRunnerMultipleUnitCaseTest {
     public void countNoOfMethodsWithMultiTestCaseAnnotation() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         testRunner = new SimpleTestRunner();
         testRunner.setPackageToBeScanned(packageName1);
-        testRunner.runSimpleTest();
-        Assert.assertEquals(4, testRunner.getUnitTestCount());
+        testRunner.runTest();
+        Assert.assertEquals(4, testRunner.getTestCount());
     }
 
     @Test
     public void testAndAssertWithMultiTestCaseAnnotationOnePassOneFail() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         testRunner = new SimpleTestRunner();
         testRunner.setPackageToBeScanned(packageName2);
-        testRunner.runSimpleTest();
-        Assert.assertEquals(1, testRunner.getPassedSimpleTestCases().size());
-        Assert.assertEquals(1, testRunner.getFailedSimpleTestCases().size());
+        testRunner.runTest();
+        Assert.assertEquals(2, testRunner.getTestCases().size());
+        //Assert.assertEquals(1, testRunner.getPassedTestCases().size());
+        Assert.assertEquals(1, testRunner.getFailedTestCases().size());
     }
 }

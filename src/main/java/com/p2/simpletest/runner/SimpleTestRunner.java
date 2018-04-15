@@ -1,62 +1,104 @@
 package com.p2.simpletest.runner;
 
 import com.p2.simpletest.Test;
-import com.p2.simpletest.exception.SimpleTestFailureException;
 import com.p2.simpletest.helper.SimpleTestHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.regex.Matcher;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by I335831 on 4/15/2018.
  */
-public class SimpleTestRunner {
-    private int unitTestCount;
+public class SimpleTestRunner implements ITestRunner {
+    private int testCount;
     private String packageToBeScanned;
-    private List<String> simpleTestCases = new ArrayList<>();
-    private List<String> passedSimpleTestCases = new ArrayList<>();
-    private Map<String, String> failedSimpleTestCases = new HashMap<>();
+    private List<String> testCases = new ArrayList<>();
+    private List<String> passedTestCases = new ArrayList<>();
+    private Map<String, String> failedTestCases = new HashMap<>();
+    private ThreadPoolExecutor executor ;
 
-    public List<String> getSimpleTestCases() {
-        return simpleTestCases;
+    @Override
+    public List<String> getTestCases() {
+        return testCases;
     }
 
-    public List<String> getPassedSimpleTestCases() {
-        return passedSimpleTestCases;
+    @Override
+    public List<String> getPassedTestCases() {
+        synchronized (passedTestCases) {
+            return passedTestCases;
+        }
     }
 
     public void setPackageToBeScanned(String packageToBeScanned) {
         this.packageToBeScanned = packageToBeScanned;
     }
 
-    public int getUnitTestCount() {
-        return unitTestCount;
+    @Override
+    public int getTestCount() {
+        return testCount;
     }
 
-    public void runSimpleTest() throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        Set<Class<?>> classes = SimpleTestHelper.getClasses(packageToBeScanned);
-        for(Class klass : classes){
-            Method[] methods = klass.getDeclaredMethods();
-            for(Method method : methods){
-                String methodFullyQualifiedName = new StringBuilder().append(klass.getName()).append("#")
-                        .append(method.getName()).toString();
-               if(method.isAnnotationPresent(Test.class)){
-                    unitTestCount++;
-                    simpleTestCases.add(methodFullyQualifiedName);
-                    try {
-                        method.invoke(klass.newInstance());//Run @Test Annotated Method
-                        passedSimpleTestCases.add(methodFullyQualifiedName);
-                    } catch (Exception e) {
-                        failedSimpleTestCases.put(methodFullyQualifiedName, e.getCause().toString());
-                    }
-                }
-            }
+    @Override
+    public Map<String,String> getFailedTestCases() {
+        synchronized (failedTestCases) {
+            return failedTestCases;
         }
     }
 
-    public Map<String,String> getFailedSimpleTestCases() {
-        return failedSimpleTestCases;
+    /**
+     * For UnitTesting Purpose -- To Mock ThreadPoolExecutor
+     * @param executor
+     */
+    public SimpleTestRunner(ThreadPoolExecutor executor){
+        if(executor == null) {
+            this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ITestRunner.THREAD_POOL_LIMIT);
+        } else {
+            this.executor = executor;
+        }
+    }
+
+    public SimpleTestRunner(){
+        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ITestRunner.THREAD_POOL_LIMIT);
+    }
+
+    public void runTest() throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        Set<Class<?>> classes = SimpleTestHelper.getClasses(packageToBeScanned);
+        for(Class<?> klass : classes){
+            Method[] methods = klass.getDeclaredMethods();
+            for(Method method : methods){
+                String methodFullyQualifiedName = SimpleTestHelper.getMethodName(klass, method);
+               if(method.isAnnotationPresent(Test.class)){
+                    testCount++;
+                    testCases.add(methodFullyQualifiedName);
+                    SimpleTestTask simpleTestTask = getSimpleTask(klass, method , failedTestCases, passedTestCases);
+                    executor.execute(simpleTestTask);
+                }
+            }
+        }
+
+        executor.shutdown();
+
+        try {
+            if (executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                System.out.println("Test Cases Executed Successfully!!");
+            } else {
+                System.err.println("Test Cases Not Executed in 5 Seconds");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public SimpleTestTask getSimpleTask(Class<?> klass,
+                                        Method method, Map<String, String> failedTestCases, List<String> passedTestCases) {
+        return new SimpleTestTask(klass, method , failedTestCases, passedTestCases);
     }
 }

@@ -7,6 +7,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -28,5 +29,10 @@ public class SimpleTestHelper {
         Set<Class <?>> classes = reflections.getSubTypesOf(Object.class);
 
         return classes;
+    }
+
+    public static String getMethodName(Class klass, Method method) {
+        return new StringBuilder().append(klass.getName()).append("#")
+                .append(method.getName()).toString();
     }
 }

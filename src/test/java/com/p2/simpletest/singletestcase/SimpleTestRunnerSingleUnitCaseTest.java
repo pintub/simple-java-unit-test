@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
 
 /**
  * Created by I335831 on 4/15/2018.
@@ -39,22 +38,22 @@ public class SimpleTestRunnerSingleUnitCaseTest {
     @Test
     public void countNoOfMethodsZeroWithNoTestAnnotation(){
         testRunner = new SimpleTestRunner();
-        Assert.assertEquals(0, testRunner.getUnitTestCount());
+        Assert.assertEquals(0, testRunner.getTestCount());
     }
 
     @Test
     public void countNoOfMethodsOneWithOneTestCaseAnnotation() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         testRunner = new SimpleTestRunner();
         testRunner.setPackageToBeScanned(packageName1);
-        testRunner.runSimpleTest();
-        Assert.assertEquals(1, testRunner.getUnitTestCount());
+        testRunner.runTest();
+        Assert.assertEquals(1, testRunner.getTestCount());
     }
 
     @Test
     public void testMethodInvokedWithOneTestCaseAnnotation() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         testRunner = new SimpleTestRunner();
         testRunner.setPackageToBeScanned(packageName1);
-        testRunner.runSimpleTest();
+        testRunner.runTest();
         Assert.assertTrue(outContent.toString().contains("SimpleTest"));
     }
 
@@ -62,8 +61,8 @@ public class SimpleTestRunnerSingleUnitCaseTest {
     public void testAndAssertAdditionUsingSimpleTestPositiveScenario() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         testRunner = new SimpleTestRunner();
         testRunner.setPackageToBeScanned(packageName1);
-        testRunner.runSimpleTest();
-        Assert.assertEquals(1, testRunner.getPassedSimpleTestCases().size());
+        testRunner.runTest();
+        Assert.assertEquals(1, testRunner.getPassedTestCases().size());
     }
 
     @Test
@@ -71,11 +70,11 @@ public class SimpleTestRunnerSingleUnitCaseTest {
         String exceptionPattern = "Expected Result .* But Found Actual Result .*";
         testRunner = new SimpleTestRunner();
         testRunner.setPackageToBeScanned(packageName2);
-        testRunner.runSimpleTest();
-        Assert.assertEquals(0, testRunner.getPassedSimpleTestCases().size());
-        Assert.assertEquals(1, testRunner.getFailedSimpleTestCases().size());
+        testRunner.runTest();
+        Assert.assertEquals(0, testRunner.getPassedTestCases().size());
+        Assert.assertEquals(1, testRunner.getFailedTestCases().size());
 
-        for(String value : testRunner.getFailedSimpleTestCases().values()){
+        for(String value : testRunner.getFailedTestCases().values()){
             Assert.assertTrue(value.matches(exceptionPattern));
         }
     }
