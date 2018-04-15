@@ -1,6 +1,7 @@
 package com.p2.simpletest.testcases.onetest;
 
 import com.p2.simpletest.Test;
+import com.p2.simpletest.assertion.Assert;
 import com.p2.simpletest.exception.SimpleTestFailureException;
 import com.p2.simpletest.testedclasses.Addition;
 
@@ -23,8 +24,7 @@ public class SampleTest {
 
         int expectedResult = 16;
         int actualResult = addition.getSum();
-        if(addition.getSum() != expectedResult){
-            throw new SimpleTestFailureException(expectedResult, actualResult);
-        }
+
+        Assert.assertTrue(expectedResult == actualResult);
     }
 }
