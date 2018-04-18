@@ -37,6 +37,18 @@ public class SimpleTestRunner implements ITestRunner {
         }
     }
 
+    @Override
+    public String getTestRunnerReport() {
+        StringBuilder report = new StringBuilder();
+        report.append("SimpleJTest: Passed Test cases: \n");
+        report.append(passedTestCases);
+        report.append("\n");
+        report.append("SimpleJTest: Failed Test cases: \n");
+        report.append(failedTestCases);
+
+        return report.toString();
+    }
+
     public void setPackageToBeScanned(String packageToBeScanned) {
         this.packageToBeScanned = packageToBeScanned;
     }

@@ -16,6 +16,8 @@ public interface ITestRunner {
 
     List<String> getPassedTestCases();
 
+    String getTestRunnerReport();
+
     Map<String,String> getFailedTestCases();
 
     void runTest() throws Exception;
