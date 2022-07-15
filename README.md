@@ -1,4 +1,4 @@
-# SimpleJTest
+# simple-java-unit-test
 
 Simple Unit Testing framework for Java Programming language . 
 Note : It i just for learning purpose . Dont expect full fledged functionality in SimpleTest
